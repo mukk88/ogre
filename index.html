@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word Pairs Game</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        padding: 40px;
+        max-width: 600px;
+        width: 100%;
+        text-align: center;
+      }
+
+      h1 {
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 2em;
+      }
+
+      .scores-container {
+        display: flex;
+        justify-content: space-around;
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .score-display {
+        font-size: 1.5em;
+        color: #667eea;
+        font-weight: bold;
+        padding: 15px;
+        background: #f0f0f0;
+        border-radius: 10px;
+        flex: 1;
+        transition: all 0.3s ease;
+      }
+
+      .score-display.active {
+        background: #667eea;
+        color: white;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .score-label {
+        font-size: 0.7em;
+        opacity: 0.8;
+        margin-bottom: 5px;
+      }
+
+      .word-pair {
+        font-size: 2em;
+        color: #333;
+        margin: 40px 0;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .word {
+        padding: 15px 30px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        display: inline-block;
+        margin: 5px;
+      }
+
+      .buttons-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin: 30px 0;
+      }
+
+      .score-button {
+        padding: 15px 30px;
+        font-size: 1.2em;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        color: white;
+      }
+
+      .score-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .score-button:active {
+        transform: translateY(0);
+      }
+
+      .score-button.negative {
+        background: #e74c3c;
+      }
+
+      .score-button.zero {
+        background: #95a5a6;
+      }
+
+      .score-button.positive {
+        background: #3498db;
+      }
+
+      .score-button.high {
+        background: #2ecc71;
+      }
+
+      .control-button {
+        padding: 15px 30px;
+        font-size: 1em;
+        border: 2px solid #667eea;
+        background: white;
+        color: #667eea;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 15px;
+      }
+
+      .control-button:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .completion-screen {
+        display: none;
+      }
+
+      .completion-screen.active {
+        display: block;
+      }
+
+      .completion-screen h2 {
+        color: #2ecc71;
+        font-size: 2.5em;
+        margin-bottom: 20px;
+      }
+
+      .completion-screen .final-score {
+        font-size: 3em;
+        color: #667eea;
+        font-weight: bold;
+        margin: 30px 0;
+      }
+
+      .progress {
+        margin-top: 20px;
+        font-size: 0.9em;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id="game-screen">
+        <h1>Word Pairs Game</h1>
+        <div class="scores-container">
+          <div class="score-display" id="score1-display">
+            <div class="score-label">Score 1</div>
+            <span id="score1">0</span>
+          </div>
+          <div class="score-display active" id="score2-display">
+            <div class="score-label">Score 2</div>
+            <span id="score2">0</span>
+          </div>
+        </div>
+        <button
+          class="control-button"
+          onclick="switchScore()"
+          style="margin-bottom: 20px"
+        >
+          Switch Score (Currently: <span id="active-score-label">Score 2</span>)
+        </button>
+        <div class="word-pair" id="word-pair">
+          <span class="word" id="word1"></span>
+          <span class="word" id="word2"></span>
+        </div>
+        <div class="buttons-container">
+          <button class="score-button negative" onclick="updateScore(-1)">
+            -1
+          </button>
+          <button class="score-button zero" onclick="updateScore(0)">0</button>
+          <button class="score-button positive" onclick="updateScore(1)">
+            1
+          </button>
+          <button class="score-button high" onclick="updateScore(3)">3</button>
+        </div>
+        <button class="control-button" onclick="shuffleAndReset()">
+          Shuffle & Reset
+        </button>
+        <div class="progress">
+          Word pair <span id="current-index">1</span> of
+          <span id="total-words">100</span>
+        </div>
+      </div>
+
+      <div id="completion-screen" class="completion-screen">
+        <h2>🎉 All Done! 🎉</h2>
+        <p>You've completed all word pairs!</p>
+        <div class="final-score">
+          Final Score 1: <span id="final-score1">0</span>
+        </div>
+        <div class="final-score">
+          Final Score 2: <span id="final-score2">0</span>
+        </div>
+        <button class="control-button" onclick="shuffleAndReset()">
+          Start Over
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // Generate 100 random word pairs
+      // Words are stored together as pairs
+      function generateWordPairs() {
+        const wordPairs = [
+          'North Pole',
+          'Mount Everest',
+          'Grand Canyon',
+          'Eiffel Tower',
+          'Statue of Liberty',
+          'White House',
+          'Golden Gate Bridge',
+          'Times Square',
+          'Disney World',
+          'Great Wall of China',
+          'Ice Cream Truck',
+          'Hot Air Balloon, Fire Engine',
+          'School Bus',
+          'Police Car',
+          'Garbage Truck',
+          'Monster Truck',
+          'Dump Truck',
+          'Space Shuttle',
+          'Cruise Ship',
+          'Roller Coaster',
+          'Ferris Wheel',
+          'Merry Go Round',
+          'Water Slide',
+          'Bumper Cars',
+          'Cotton Candy',
+          'French Fries',
+          'Hot Dog',
+          'Apple Pie',
+          'Birthday Cake',
+          'Peanut Butter',
+          'Chocolate Chip Cookie',
+          'Taco Shell',
+          'Potato Chip',
+          'Soft Drink',
+          'Sour Cream',
+          'Fried Rice',
+          'Spiced Ham',
+          'Sweet Corn',
+          'Green Bean',
+          'Gummy Bear',
+          'Lollipop Stick',
+          'Bubble Gum',
+          'Pancake Mix',
+          'Maple Syrup',
+          'Waffle Iron',
+          'Fire Fighter',
+          'Movie Star',
+          'Rock Band',
+          'News Man',
+          'Mail Man',
+          'Bus Driver',
+          'Store Clerk',
+          'Diva Singer',
+          'Star Chef',
+          'Zoe Zoo Man',
+          'Mad King',
+          'Bad Guy',
+          'Good Man',
+          'Cave Man',
+          'Best Friend',
+          'Tall Man',
+          'Big Boss',
+          'Old Folk',
+          'Small Child',
+          'Baby Boy',
+          'Polar Bear',
+          'Blue Whale',
+          'Sea Horse',
+          'Tree Frog',
+          'Bald Eagle',
+          'Black Bear',
+          'Fruit Fly',
+          'Grass Hopper',
+          'Killer Whale',
+          'Rattle Snake',
+          'Grizzly Bear',
+          'Snow Owl',
+          'Lady Bug',
+          'House Cat',
+          'Wild Dog',
+          'Star Fish',
+          'Jelly Fish',
+          'Sword Fish',
+          'Cell Phone',
+          'Lap Top',
+          'Video Game',
+          'Flat Screen',
+          'Smart Watch',
+          'Light Bulb',
+          'Hair Brush',
+          'Tooth Brush',
+          'Dish Washer',
+          'Game Box',
+          'Space Ship',
+          'Time Machine',
+          'Death Star',
+          'Light Sword',
+          'Iron Man',
+          'Spider Man',
+          'Bat Man',
+        ];
+        return wordPairs;
+      }
+
+      let wordPairs = generateWordPairs();
+      let currentIndex = 0;
+      let score1 = 0;
+      let score2 = 0;
+      let activeScore = 2; // 1 or 2
+
+      function updateDisplay() {
+        const gameScreen = document.getElementById('game-screen');
+        const completionScreen = document.getElementById('completion-screen');
+
+        // Update score displays
+        document.getElementById('score1').textContent = score1;
+        document.getElementById('score2').textContent = score2;
+
+        // Update active score indicator
+        const score1Display = document.getElementById('score1-display');
+        const score2Display = document.getElementById('score2-display');
+        const activeScoreLabel = document.getElementById('active-score-label');
+
+        if (activeScore === 1) {
+          score1Display.classList.add('active');
+          score2Display.classList.remove('active');
+          activeScoreLabel.textContent = 'Score 1';
+        } else {
+          score1Display.classList.remove('active');
+          score2Display.classList.add('active');
+          activeScoreLabel.textContent = 'Score 2';
+        }
+
+        if (currentIndex >= wordPairs.length) {
+          gameScreen.style.display = 'none';
+          completionScreen.classList.add('active');
+          document.getElementById('final-score1').textContent = score1;
+          document.getElementById('final-score2').textContent = score2;
+        } else {
+          gameScreen.style.display = 'block';
+          completionScreen.classList.remove('active');
+          const pair = wordPairs[currentIndex];
+          // Split the pair string by the last space to get two words
+          const lastSpaceIndex = pair.lastIndexOf(' ');
+          const word1 =
+            lastSpaceIndex !== -1 ? pair.substring(0, lastSpaceIndex) : pair;
+          const word2 =
+            lastSpaceIndex !== -1 ? pair.substring(lastSpaceIndex + 1) : '';
+          document.getElementById('word1').textContent = word1;
+          document.getElementById('word2').textContent = word2;
+          document.getElementById('current-index').textContent =
+            currentIndex + 1;
+        }
+      }
+
+      function switchScore() {
+        activeScore = activeScore === 1 ? 2 : 1;
+        updateDisplay();
+      }
+
+      function updateScore(value) {
+        if (currentIndex >= wordPairs.length) return;
+
+        // Update the active score
+        if (activeScore === 1) {
+          score1 += value;
+        } else {
+          score2 += value;
+        }
+
+        currentIndex++;
+        updateDisplay();
+      }
+
+      function shuffleAndReset() {
+        // Shuffle the word pairs array
+        for (let i = wordPairs.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [wordPairs[i], wordPairs[j]] = [wordPairs[j], wordPairs[i]];
+        }
+
+        // Reset both scores and index
+        score1 = 0;
+        score2 = 0;
+        currentIndex = 0;
+        updateDisplay();
+      }
+
+      // Initialize the display
+      updateDisplay();
+    </script>
+  </body>
+</html>
