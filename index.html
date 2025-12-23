@@ -55,6 +55,12 @@
         border-radius: 10px;
         flex: 1;
         transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .score-display:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
       }
 
       .score-display.active {
@@ -186,22 +192,23 @@
       <div id="game-screen">
         <h1>Ogre Game</h1>
         <div class="scores-container">
-          <div class="score-display" id="score1-display">
-            <div class="score-label">Score 1</div>
+          <div
+            class="score-display"
+            id="score1-display"
+            onclick="setActiveScore(1)"
+          >
+            <div class="score-label">Team 1</div>
             <span id="score1">0</span>
           </div>
-          <div class="score-display active" id="score2-display">
-            <div class="score-label">Score 2</div>
+          <div
+            class="score-display active"
+            id="score2-display"
+            onclick="setActiveScore(2)"
+          >
+            <div class="score-label">Team 2</div>
             <span id="score2">0</span>
           </div>
         </div>
-        <button
-          class="control-button"
-          onclick="switchScore()"
-          style="margin-bottom: 20px"
-        >
-          Switch Score (Currently: <span id="active-score-label">Score 2</span>)
-        </button>
         <div class="word-pair" id="word-pair">
           <span class="word" id="word1"></span>
           <span class="word" id="word2"></span>
@@ -353,7 +360,7 @@
       let currentIndex = 0;
       let score1 = 0;
       let score2 = 0;
-      let activeScore = 2; // 1 or 2
+      let activeScore = 1; // 1 or 2
 
       function updateDisplay() {
         const gameScreen = document.getElementById('game-screen');
@@ -366,16 +373,13 @@
         // Update active score indicator
         const score1Display = document.getElementById('score1-display');
         const score2Display = document.getElementById('score2-display');
-        const activeScoreLabel = document.getElementById('active-score-label');
 
         if (activeScore === 1) {
           score1Display.classList.add('active');
           score2Display.classList.remove('active');
-          activeScoreLabel.textContent = 'Score 1';
         } else {
           score1Display.classList.remove('active');
           score2Display.classList.add('active');
-          activeScoreLabel.textContent = 'Score 2';
         }
 
         if (currentIndex >= wordPairs.length) {
@@ -400,8 +404,8 @@
         }
       }
 
-      function switchScore() {
-        activeScore = activeScore === 1 ? 2 : 1;
+      function setActiveScore(scoreNum) {
+        activeScore = scoreNum;
         updateDisplay();
       }
 
